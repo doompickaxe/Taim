@@ -1,7 +1,6 @@
 package io.kay
 
 import io.kay.visuals.TaimApp
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import tornadofx.launch
 import java.io.File
 import java.time.LocalDate
