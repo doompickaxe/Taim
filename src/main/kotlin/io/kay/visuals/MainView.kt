@@ -3,12 +3,17 @@ package io.kay.visuals
 import io.kay.DataService.DataService
 import io.kay.DataService.LocalDataService
 import io.kay.DataService.ModelViewTransformer
+import javafx.beans.binding.BooleanBinding
+import javafx.beans.property.ObjectProperty
+import javafx.beans.property.ObjectPropertyBase
 import javafx.beans.property.Property
+import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
-import javafx.collections.ObservableList
+import javafx.collections.ListChangeListener
 import javafx.geometry.Orientation
 import javafx.scene.control.Button
 import javafx.scene.control.Label
+import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextField
 import javafx.scene.layout.FlowPane
 import javafx.scene.layout.Pane
@@ -23,10 +28,11 @@ class MainView : View("Log Time") {
     var partModelList = mutableListOf(PartModel(), PartModel())
     var listViewItems = FXCollections.observableList(getPartsWithBindings())
     val modelHolder = createHolder()
+    var saveButtonEnabler = refreshSaveButtonEnabler()
 
     fun createHolder(): FlowPane {
         val flowPane = FlowPane(Orientation.VERTICAL)
-        flowPane.children.addAll(listViewItems)
+        flowPane.bindChildren(listViewItems) { it }
         return flowPane
     }
 
@@ -38,7 +44,6 @@ class MainView : View("Log Time") {
                         value = LocalDate.now()
                         converter = TaimStringConverter()
                         valueProperty().addListener { _, _, new ->
-                            listViewItems.remove(0, listViewItems.size)
                             val newParts = dataService
                                 .getWorkDay(new)?.parts?.map { ModelViewTransformer.viewFromPart(it) }
 
@@ -46,7 +51,13 @@ class MainView : View("Log Time") {
                             if (partModelList.size < 2)
                                 partModelList.add(PartModel())
 
-                            listViewItems.addAll(getPartsWithBindings())
+                            refreshList()
+                        }
+                    }
+                    button("Add") {
+                        action {
+                            partModelList.add(PartModel())
+                            refreshList()
                         }
                     }
                 }
@@ -62,11 +73,7 @@ class MainView : View("Log Time") {
                     )
                     dataService.upsertWorkDay(workDay)
                 }
-
-                var chainedValidity = dayModel.valid.and(true)
-                for (model in partModelList)
-                    chainedValidity = chainedValidity.and(model.valid)
-                enableWhen(chainedValidity)
+                enableWhen(saveButtonEnabler)
             }
         }
 
@@ -114,5 +121,20 @@ class MainView : View("Log Time") {
                 model.validate(decorateErrors = false)
                 container
             }
+    }
+
+    fun refreshList() {
+        listViewItems.remove(0, listViewItems.size)
+        listViewItems.addAll(getPartsWithBindings())
+        refreshSaveButtonEnabler()
+    }
+
+    fun refreshSaveButtonEnabler(): BooleanBinding {
+        var enabler = dayModel.valid.and(true)
+
+        for (part in partModelList)
+            enabler = enabler.and(part.valid)
+
+        return enabler
     }
 }
