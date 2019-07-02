@@ -1,5 +1,7 @@
 package io.kay.DataService
 
+import io.kay.model.Part
+import io.kay.model.WorkDay
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFSheet
@@ -101,6 +103,7 @@ fun main() {
     println("${workDay.day}:")
     workDay.parts.forEach { println("${it.start} -> ${it.end}") }
 
-    val newWorkDay = WorkDay(LocalDate.of(2019, 6, 28), listOf(Part(LocalTime.now(), LocalTime.now())))
+    val newWorkDay =
+        WorkDay(LocalDate.of(2019, 6, 28), listOf(Part(LocalTime.now(), LocalTime.now())))
     ExcelDataService().upsertWorkDay(newWorkDay)
 }

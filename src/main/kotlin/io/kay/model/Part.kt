@@ -1,4 +1,4 @@
-package io.kay.DataService
+package io.kay.model
 
 import java.time.LocalTime
 

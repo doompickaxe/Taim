@@ -1,5 +1,6 @@
 package io.kay.DataService
 
+import io.kay.model.WorkDay
 import java.time.LocalDate
 
 class LocalDataService : DataService {

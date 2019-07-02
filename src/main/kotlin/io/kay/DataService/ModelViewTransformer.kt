@@ -1,5 +1,7 @@
 package io.kay.DataService
 
+import io.kay.model.Part
+import io.kay.model.WorkDay
 import io.kay.visuals.PartModel
 import io.kay.visuals.PartView
 import io.kay.visuals.WorkDayModel
