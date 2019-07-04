@@ -1,5 +1,6 @@
 package io.kay.DataService
 
+import io.kay.config.ExcelConfig
 import io.kay.model.Part
 import io.kay.model.WorkDay
 import org.apache.poi.ss.usermodel.Cell
@@ -13,25 +14,25 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
-class ExcelDataService : DataService {
+class ExcelDataService(private val config: ExcelConfig) : DataService {
 
-    val filename = ExcelDataService::class.java.getResource("/time.xlsx").file
+    val filename = config.file
     var xlsx: XSSFWorkbook = XSSFWorkbook(File(filename))
     val dateFormatter = SimpleDateFormat("YYYY-MM-dd")
     val timeFormatter = SimpleDateFormat("HH:mm")
 
-    override fun upsertWorkDay(workDay: WorkDay) {
-        if (workDay.parts.size > 3)
+    override fun upsertWorkDay(day: WorkDay) {
+        if (day.parts.size > 3)
             throw RuntimeException("Cannot deal with more than 3 parts")
 
-        val month = workDay.day.month.value
+        val month = day.day.month.value
         val currentSheet = xlsx.getSheet(if (month < 10) "0$month" else "$month")
-        val currentRow = searchDay(currentSheet, workDay.day)!!
+        val currentRow = searchDay(currentSheet, day.day)!!
 
         val relevantCells = relevantCells(currentRow)
-        for (i in 0 until workDay.parts.size) {
-            val start = workDay.parts[i].start
-            val end = workDay.parts[i].end
+        for (i in 0 until day.parts.size) {
+            val start = day.parts[i].start
+            val end = day.parts[i].end
             relevantCells[i * 2].setCellValue(start.hour / 24.0 + start.minute / (24.0 * 60.0))
             if (end != null)
                 relevantCells[i * 2 + 1].setCellValue(end.hour / 24.0 + end.minute / (24.0 * 60.0))
@@ -84,26 +85,19 @@ class ExcelDataService : DataService {
     }
 
     private fun save() {
-        val newFile = filename.replace("time.xlsx", "newTime.xlsx")
-        xlsx.write(FileOutputStream(File(newFile)))
+        val newFile = File("newTime.xlsx")
+        val file = File(filename)
+        val oldFile = File("$filename.old")
+
+        xlsx.write(FileOutputStream(newFile))
         xlsx.close()
-        val oldFilename = filename.replace("time.xlsx", "time.xlsx.old")
-        File(oldFilename).delete()
-        File(filename).renameTo(File(oldFilename))
-        File(newFile).renameTo(File(filename.replace("newTime.xlsx", "time.xlsx")))
+
+        file.renameTo(oldFile)
+        newFile.renameTo(file)
+        oldFile.delete()
         readFile()
     }
 
     fun toLocalDate(date: Date) = LocalDate.parse(dateFormatter.format(date))
     fun toLocalTime(date: Date) = LocalTime.parse(timeFormatter.format(date))
-}
-
-fun main() {
-    val workDay = ExcelDataService().getWorkDay(LocalDate.of(2019, 6, 28))!!
-    println("${workDay.day}:")
-    workDay.parts.forEach { println("${it.start} -> ${it.end}") }
-
-    val newWorkDay =
-        WorkDay(LocalDate.of(2019, 6, 28), listOf(Part(LocalTime.now(), LocalTime.now())))
-    ExcelDataService().upsertWorkDay(newWorkDay)
 }

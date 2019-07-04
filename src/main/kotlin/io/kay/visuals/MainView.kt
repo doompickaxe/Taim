@@ -1,19 +1,14 @@
 package io.kay.visuals
 
 import io.kay.DataService.DataService
-import io.kay.DataService.LocalDataService
 import io.kay.DataService.ModelViewTransformer
+import io.kay.config.ConfigReader
 import javafx.beans.binding.BooleanBinding
-import javafx.beans.property.ObjectProperty
-import javafx.beans.property.ObjectPropertyBase
 import javafx.beans.property.Property
-import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
-import javafx.collections.ListChangeListener
 import javafx.geometry.Orientation
 import javafx.scene.control.Button
 import javafx.scene.control.Label
-import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextField
 import javafx.scene.layout.FlowPane
 import javafx.scene.layout.Pane
@@ -22,8 +17,9 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+
 class MainView : View("Log Time") {
-    val dataService: DataService by lazy { LocalDataService() }
+    val dataService = ConfigReader().getDataService()
     val dayModel: WorkDayModel by inject()
     var partModelList = mutableListOf(PartModel(), PartModel())
     var listViewItems = FXCollections.observableList(getPartsWithBindings())

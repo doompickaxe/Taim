@@ -4,7 +4,7 @@ import io.kay.model.WorkDay
 import java.time.LocalDate
 
 class LocalDataService : DataService {
-    val map = mutableMapOf<LocalDate, WorkDay>()
+    private val map = mutableMapOf<LocalDate, WorkDay>()
 
     override fun upsertWorkDay(day: WorkDay) {
         map[day.day] = day
