@@ -28,5 +28,5 @@ The following tables will be created (if not exists):
 
 * WORK_PARTS
   * day DATE (FK -> WORK_DAY) (PK)
-  * start DATE (PK)
-  * end DATE (PK)
+  * start DATETIME (PK)
+  * end DATETIME (PK)

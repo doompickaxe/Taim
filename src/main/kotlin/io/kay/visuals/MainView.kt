@@ -1,10 +1,10 @@
 package io.kay.visuals
 
-import io.kay.DataService.DataService
 import io.kay.DataService.ModelViewTransformer
 import io.kay.config.ConfigReader
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.Property
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.FXCollections
 import javafx.geometry.Orientation
 import javafx.scene.control.Button
@@ -25,6 +25,7 @@ class MainView : View("Log Time") {
     var listViewItems = FXCollections.observableList(getPartsWithBindings())
     val modelHolder = createHolder()
     var saveButtonEnabler = refreshSaveButtonEnabler()
+    var statusText = SimpleStringProperty("Ready")
 
     fun createHolder(): FlowPane {
         val flowPane = FlowPane(Orientation.VERTICAL)
@@ -50,6 +51,7 @@ class MainView : View("Log Time") {
                             refreshList()
                         }
                     }
+
                     button("Add") {
                         action {
                             partModelList.add(PartModel())
@@ -58,18 +60,26 @@ class MainView : View("Log Time") {
                     }
                 }
             }
+
             scrollpane(fitToHeight = true, fitToWidth = true) {
                 content = modelHolder
             }
-            button("Save") {
-                action {
-                    val workDay = ModelViewTransformer.workDayFromView(
-                        dayModel,
-                        partModelList.filter { it.start.value != null }
-                    )
-                    dataService.upsertWorkDay(workDay)
+
+            hbox {
+                button("Save") {
+                    action {
+                        val workDay = ModelViewTransformer.workDayFromView(
+                            dayModel,
+                            partModelList.filter { it.start.value != null }
+                        )
+                        statusText.set("Save ...")
+                        dataService.upsertWorkDay(workDay)
+                        statusText.set("Ready")
+                    }
+                    enableWhen(saveButtonEnabler)
                 }
-                enableWhen(saveButtonEnabler)
+
+                label(statusText)
             }
         }
 
@@ -77,7 +87,7 @@ class MainView : View("Log Time") {
         partModelList.forEach { it.validate(decorateErrors = false) }
     }
 
-    fun timeValidator(str: String?): ValidationMessage? {
+    private fun timeValidator(str: String?): ValidationMessage? {
         if (str.isNullOrEmpty())
             return null
 
@@ -87,7 +97,7 @@ class MainView : View("Log Time") {
             ValidationMessage("Did not match time HH:mm", ValidationSeverity.Error)
     }
 
-    fun getFieldPart(title: String, property: Property<String>): Field {
+    private fun getFieldPart(title: String, property: Property<String>): Field {
         val field = Field()
         val label = Label(title)
         val textField = TextField()
@@ -107,7 +117,7 @@ class MainView : View("Log Time") {
         return field
     }
 
-    fun getPartsWithBindings(): List<Pane> {
+    private fun getPartsWithBindings(): List<Pane> {
         return partModelList
             .mapIndexed { i, model ->
                 val container = Fieldset()
@@ -119,13 +129,13 @@ class MainView : View("Log Time") {
             }
     }
 
-    fun refreshList() {
+    private fun refreshList() {
         listViewItems.remove(0, listViewItems.size)
         listViewItems.addAll(getPartsWithBindings())
         refreshSaveButtonEnabler()
     }
 
-    fun refreshSaveButtonEnabler(): BooleanBinding {
+    private fun refreshSaveButtonEnabler(): BooleanBinding {
         var enabler = dayModel.valid.and(true)
 
         for (part in partModelList)
