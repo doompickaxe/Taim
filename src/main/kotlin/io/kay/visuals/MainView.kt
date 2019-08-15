@@ -1,10 +1,8 @@
 package io.kay.visuals
 
 import io.kay.dataService.TaimaDataService
+import io.kay.visuals.model.WorkDayModel
 import tornadofx.*
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 class MainView : View("Log Time") {
 
@@ -17,39 +15,7 @@ class MainView : View("Log Time") {
         }
 
         item("Overview") {
-            form {
-                fieldset {
-                    val conditions = dataService.fetchConditions(LocalDate.now())
-
-                    field("VacationLeft: ") {
-                        label(conditions.vacationLeft.toString())
-                    }
-
-                    field("To work on monday: ") {
-                        label(conditions.monday.format())
-                    }
-                    field("To work on tuesday: ") {
-                        label(conditions.tuesday.format())
-                    }
-                    field("To work on wednesday: ") {
-                        label(conditions.wednesday.format())
-                    }
-                    field("To work on thursday: ") {
-                        label(conditions.thursday.format())
-                    }
-                    field("To work on friday: ") {
-                        label(conditions.friday.format())
-                    }
-                    field("To work on saturday: ") {
-                        label(conditions.saturday.format())
-                    }
-                    field("To work on sunday: ") {
-                        label(conditions.sunday.format())
-                    }
-                }
-            }
+            overview(dataService)
         }
     }
 }
-
-private fun LocalTime.format() = this.format(DateTimeFormatter.ofPattern("HH:mm"))

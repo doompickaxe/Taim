@@ -1,4 +1,4 @@
-package io.kay.visuals
+package io.kay.visuals.model
 
 import javafx.beans.property.Property
 import tornadofx.ItemViewModel

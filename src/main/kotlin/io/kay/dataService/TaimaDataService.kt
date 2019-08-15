@@ -14,6 +14,7 @@ import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import io.kay.model.*
 import org.json.JSONObject
+import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -156,6 +157,23 @@ class TaimaDataService {
                     is Result.Success -> null
                 }
             }
+    }
+
+    fun downloadReport(from: LocalDate, to: LocalDate) {
+        val formattedFrom = formatDay(from)
+        val formattedTo = formatDay(to)
+        "$TAIMA/user/report"
+            .httpGet(listOf(Pair("from", formattedFrom), Pair("to", formattedTo)))
+            .response { result ->
+                when(result) {
+                    is Result.Failure -> throw java.lang.RuntimeException(result.error)
+                    is Result.Success -> writeFile(result.value)
+                }
+            }
+    }
+
+    private fun writeFile(bytes: ByteArray) {
+        File("report.csv").writeBytes(bytes)
     }
 
     private fun deleteFreePart(freePart: FreePart?, formattedDay: String) {

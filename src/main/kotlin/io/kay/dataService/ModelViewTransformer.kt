@@ -2,9 +2,9 @@ package io.kay.dataService
 
 import io.kay.model.Part
 import io.kay.model.WorkDay
-import io.kay.visuals.PartModel
-import io.kay.visuals.PartView
-import io.kay.visuals.WorkDayModel
+import io.kay.visuals.model.PartModel
+import io.kay.visuals.model.PartView
+import io.kay.visuals.model.WorkDayModel
 import javafx.beans.property.Property
 import java.lang.RuntimeException
 import java.time.LocalTime

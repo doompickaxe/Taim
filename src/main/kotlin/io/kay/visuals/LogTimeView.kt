@@ -6,6 +6,8 @@ import io.kay.model.FreePart
 import io.kay.model.FreeType
 import io.kay.model.FreeTypeConverter
 import io.kay.model.Part
+import io.kay.visuals.model.PartModel
+import io.kay.visuals.model.WorkDayModel
 import javafx.beans.binding.BooleanBinding
 import javafx.beans.property.*
 import javafx.collections.FXCollections.observableList
@@ -215,7 +217,10 @@ private fun EventTarget.footer(dayModel: WorkDayModel) =
                         partModelList = getWorkParts(workDay.day)
                     } else {
                         dataService.enterWorkFreeDay(workDay, freeFromWorkItem.value, remoteFreePart)
-                        partModelList = mutableListOf(PartModel(), PartModel())
+                        partModelList = mutableListOf(
+                            PartModel(),
+                            PartModel()
+                        )
                     }
                 } ui {
                     statusText.set("Ready")

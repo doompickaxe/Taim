@@ -1,10 +1,9 @@
-package io.kay.visuals
+package io.kay.visuals.model
 
 import javafx.beans.property.Property
 import tornadofx.ItemViewModel
 import tornadofx.getProperty
 import tornadofx.property
-import java.time.LocalTime
 
 class PartView {
     var start by property<String>()
